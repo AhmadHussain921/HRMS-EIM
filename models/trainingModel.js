@@ -6,19 +6,19 @@ const Schema = new mongoose.Schema({
   },
   instituteName: {
     type: String,
-    required: true,
+    default: "",
   },
   description: {
     type: String,
-    required: true,
+    default: "",
   },
   duration: {
     type: String,
-    required: true,
+    default: "",
   },
   outcomes: {
     type: String,
-    required: true,
+    default: "",
   },
 });
 const Training = mongoose.model("Training", Schema);

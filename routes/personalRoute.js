@@ -1,6 +1,16 @@
-const express=require("express");
-const {addDetails, add2Department }=require("../controller/personal");
-const router=express.Router();
-router.post("/add",addDetails);
-router.put("/add/department",add2Department);
-module.exports=router;
+const express = require("express");
+const {
+  allDetails,
+  addDetails,
+  updateDetails,
+  add2Department,
+  addExperience,
+} = require("../controller/personal");
+const router = express.Router();
+router.get("/", allDetails);
+router.post("/add", addDetails);
+router.put("/update", updateDetails);
+router.put("/department/add", add2Department);
+router.put("/experience/add", addExperience);
+
+module.exports = router;

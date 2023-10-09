@@ -6,13 +6,12 @@ const Schema = new mongoose.Schema({
   },
   duration: {
     type: String,
-    required: true,
+    default: "",
   },
-  condifence: {
+  confidence: {
     type: String,
-    required: true,
+    default: "",
   },
- 
 });
 const Skills = mongoose.model("Skills", Schema);
 module.exports = Skills;

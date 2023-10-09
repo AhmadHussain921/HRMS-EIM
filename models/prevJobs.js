@@ -6,15 +6,15 @@ const Schema = new mongoose.Schema({
   },
   companyName: {
     type: String,
-    required: true,
+    default: "",
   },
   companyContact: {
     type: String,
-    required: true,
+    default: "",
   },
   salary: {
     type: String,
-    required: true,
+    default: "",
   },
 });
 const PrevJobs = mongoose.model("PrevJobs", Schema);
