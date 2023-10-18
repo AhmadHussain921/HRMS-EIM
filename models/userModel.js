@@ -20,16 +20,6 @@ const Schema = new mongoose.Schema({
   },
 });
 Schema.methods.matchPassword = async function (enteredPassword) {
-  bcrypt.compare(enteredPassword, this.password, function (err, result) {
-    if (err) {
-      console.error(err);
-    } else if (result === true) {
-      console.log("Password matched");
-    } else {
-      console.log("Password does not match");
-    }
-  });
-
   return await bcrypt.compare(enteredPassword, this.password);
 };
 Schema.pre("save", async function (next) {

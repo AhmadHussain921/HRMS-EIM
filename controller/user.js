@@ -7,7 +7,7 @@ const register = asyncHandler(async (req, res, next) => {
 
   if (!name || !email || !type || !password) {
     res.status(400);
-    throw new Error("Please Enter all the fields");
+    throw new Error("Insufficient Details");
   }
   const userExists = await User.findOne({ email });
   if (userExists) {
@@ -39,7 +39,7 @@ const login = asyncHandler(async (req, res, next) => {
 
   if (!email || !password) {
     res.status(400);
-    throw new Error("Please Enter all the fields");
+    throw new Error("Insufficient Details");
   }
   const user = await User.findOne({ email });
   if (!user) {

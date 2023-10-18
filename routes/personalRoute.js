@@ -1,4 +1,6 @@
 const express = require("express");
+const router = express.Router();
+const { protect } = require("../middleware/auth");
 const {
   allDetails,
   addDetails,
@@ -6,11 +8,10 @@ const {
   add2Department,
   addExperience,
 } = require("../controller/personal");
-const router = express.Router();
-router.get("/", allDetails);
-router.post("/add", addDetails);
-router.put("/update", updateDetails);
-router.put("/department/add", add2Department);
-router.put("/experience/add", addExperience);
+router.get("/", protect, allDetails);
+router.post("/add", protect, addDetails);
+router.put("/update", protect, updateDetails);
+router.put("/department/add", protect, add2Department);
+router.put("/experience/add", protect, addExperience);
 
 module.exports = router;

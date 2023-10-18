@@ -1,4 +1,6 @@
 const express = require("express");
+const router = express.Router();
+const { protect } = require("../middleware/auth.js");
 const {
   addDetails,
   updateDetails,
@@ -6,10 +8,9 @@ const {
   allDetails,
   addRole2Department,
 } = require("../controller/department");
-const router = express.Router();
-router.get("/", allDetails);
-router.post("/add", addDetails);
-router.put("/role/add", addRole2Department);
-router.put("/update", updateDetails);
-router.put("/delete", deleteDepartment);
+router.get("/", protect, allDetails);
+router.post("/add", protect, addDetails);
+router.put("/role/add", protect, addRole2Department);
+router.put("/update", protect, updateDetails);
+router.put("/delete", protect, deleteDepartment);
 module.exports = router;

@@ -1,3 +1,4 @@
+const asyncHandler = require("express-async-handler");
 const Department = require("../models/departmentsModel");
 const Role = require("../models/roleModel");
 
