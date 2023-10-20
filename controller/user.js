@@ -12,7 +12,7 @@ const allUsers = asyncHandler(async (req, res) => {
 });
 const register = asyncHandler(async (req, res, next) => {
   const { name, email, type, password } = req.body;
-
+  console.log("message from register bdy")
   if (!name || !email || !password) {
     res.status(400);
     throw new Error("Insufficient Details");

@@ -1,8 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const Department = require("../models/departmentsModel");
 const Role = require("../models/roleModel");
-
-const allDetails = async (req, res) => {
+const Personal = require("../models/personalModel");
+const allDetails = asyncHandler(async (req, res) => {
   try {
     const allDepart = await Department.find({});
     res.status(200).json(allDepart);
@@ -10,10 +10,10 @@ const allDetails = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
+});
 
-const addDetails = async (req, res) => {
-  try {
+const addDetails = asyncHandler(async (req, res) => {
+    try {
     const { name, email, contact, description } = req.body;
     if (!name || !email || !contact || !description) {
       res.status(400);
@@ -31,9 +31,9 @@ const addDetails = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
-const updateDetails = async (req, res) => {
-  try {
+});
+const updateDetails = asyncHandler(async (req, res) => {
+    try {
     const { id } = req.query;
     const { details } = req.body;
     if (!id || !details) {
@@ -55,13 +55,34 @@ const updateDetails = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
-const deleteDepartment = async (req, res) => {
+});
+const deleteDepartment = asyncHandler(async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
       res.status(400);
       throw new Error("Insufficient Details");
+    }
+    const findDepartment = await Department.findById(id);
+    if (!findDepartment) {
+      res.status(400);
+      throw new Error("Department not found");
+    }
+    if (findDepartment.workers.length > 0) {
+      for (const worker of findDepartment.workers) {
+        const findWorker = await Personal.findById(worker);
+        if (findWorker?.roleId) {
+                    const remDepFromRole = await Role.findByIdAndUpdate(
+            findWorker.roleId,
+            {
+              $unset: { departmentId: 1 },
+            },
+            {
+              new: true,
+            }
+          );
+        }
+      }
     }
     const deleting = await Department.findOneAndDelete({
       _id: id,
@@ -71,7 +92,7 @@ const deleteDepartment = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
+});
 
 module.exports = {
   allDetails,

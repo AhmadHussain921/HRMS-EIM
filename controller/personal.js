@@ -16,9 +16,9 @@ const allDetails = asyncHandler(async (req, res) => {
     throw new Error("Invalid Error");
   }
 });
-const addDetails = async (req, res) => {
+const addDetails = asyncHandler(async (req, res) => {
   try {
-    const { name, email, address, contact, dob} = req.body;
+    const { name, email, address, contact, dob } = req.body;
     if (!name || !email || !address || !contact || !dob) {
       res.status(400);
       throw new Error("Insufficient Details");
@@ -28,7 +28,7 @@ const addDetails = async (req, res) => {
       email,
       address,
       contact,
-      dob
+      dob,
     });
     await addingDetaiils.save();
     res.status(201).json(addingDetaiils);
@@ -36,8 +36,8 @@ const addDetails = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
-const updateDetails = async (req, res) => {
+});
+const updateDetails = asyncHandler(async (req, res) => {
   try {
     const { pid } = req.query;
     const { details } = req.body;
@@ -61,7 +61,67 @@ const updateDetails = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
+});
+
+const deleteDetails = asyncHandler(async (req, res) => {
+  try {
+    const { pid } = req.query;
+    if (!pid) {
+      res.status(400);
+      throw new Error("Insufficient Details");
+    }
+    const findPerson = await Personal.findById(pid);
+    if (!findPerson) {
+      res.status(400);
+      throw new Error("Worker not found");
+    }
+    if (findPerson?.experienceId) {
+      const findExperience = await Experience.findById(findPerson.experienceId);
+      if (findExperience) {
+        if (findExperience?.prevJobsId.length > 0) {
+          for (const prev of findExperience.prevJobsId) {
+            await PrevJobs.findOneAndDelete(prev);
+          }
+        }
+        if (findExperience?.trainingId.length > 0) {
+          for (const training of findExperience.trainingId) {
+            await Training.findOneAndDelete(training);
+          }
+        }
+        if (findExperience?.skillsId.length > 0) {
+          for (const skill of findExperience.skillsId) {
+            await Skills.findOneAndDelete(skill);
+          }
+        }
+        await Experience.findByIdAndDelete(findPerson.experienceId);
+      }
+    }
+    if (findPerson?.roleId) {
+      const findRole = await Role.findById(findPerson.roleId);
+      if (findRole) {
+        if (findRole?.departmentId) {
+          const remWorkerFromDep = await Department.findOneAndUpdate(
+            {
+              _id: findRole.departmentId,
+            },
+            {
+              $pull: { workers: findPerson._id },
+            },
+            {
+              new: true,
+            }
+          );
+        }
+        const delRole = await Role.findByIdAndDelete(findPerson.roleId);
+      }
+    }
+    const deletingDetails = await Personal.findByIdAndDelete({ _id: pid });
+    res.status(201).json(deletingDetails);
+  } catch (e) {
+    res.status(400);
+    throw new Error("Invalid Error");
+  }
+});
 const add2Department = asyncHandler(async (req, res) => {
   try {
     const { eid, did } = req.query;
@@ -70,6 +130,21 @@ const add2Department = asyncHandler(async (req, res) => {
     if (!eid || !did || !name || !salary || !duration) {
       res.status(400);
       throw new Error("Insufficient Details");
+    }
+    const findingPerson = await Personal.findOne({ _id: eid });
+    if (!findingPerson) {
+      res.status(400);
+      throw new Error("Person not found");
+    }
+    const findingDepartment = await Department.findOne({ _id: did });
+    if (!findingDepartment) {
+      res.status(400);
+      throw new Error("Department not found");
+    }
+
+    if (findingPerson?.roleId) {
+      res.status(400);
+      throw new Error("Role already assigned");
     }
     const creatingRole = await Role.create({
       name,
@@ -82,22 +157,13 @@ const add2Department = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("Role Creation fail");
     }
-    const findingPerson = await Personal.findOne({ _id: eid });
-    if (!findingPerson) {
-      res.status(400);
-      throw new Error("Person not found");
-    }
-
     findingPerson.roleId = created._id;
     await findingPerson.save();
-
-    const findingDepartment = await Department.findOne({ _id: did });
-    if (!findingDepartment) {
-      res.status(400);
-      throw new Error("Department not found");
+    if (!findingDepartment.workers.includes(eid)) {
+      findingDepartment.workers.push(eid);
+      await findingDepartment.save();
     }
-    findingDepartment.workers.push(eid);
-    await findingDepartment.save();
+
     res.status(201).json({ findingDepartment, findingPerson });
   } catch (e) {
     console.log(e);
@@ -105,42 +171,7 @@ const add2Department = asyncHandler(async (req, res) => {
     throw new Error("Invalid Error");
   }
 });
-const deleteDetails = async (req, res) => {
-  try {
-    const { pid } = req.query;
-
-    if (!pid) {
-      res.status(400);
-      throw new Error("Insufficient Details");
-    }
-    const deletingDetails = await Personal.findByIdAndDelete({ _id: pid });
-    res.status(201).json(deletingDetails);
-  } catch (e) {
-    res.status(400);
-    throw new Error("Invalid Error");
-  }
-};
-const addSkill = async (req, res) => {
-  try {
-    const { name, duration, confidence } = req.body;
-    if (!name || !duration || !confidence) {
-      res.status(400);
-      throw new Error("insufficient details");
-    }
-    const addSkills = await Skills.create({
-      name,
-      duration,
-      confidence,
-    });
-    await addSkills.save();
-    res.status(201).json(addSkills);
-  } catch (e) {
-    console.log(e);
-    res.status(400);
-    throw new Error("Invalid Error");
-  }
-};
-const addExperience = async (req, res) => {
+const addExperience = asyncHandler(async (req, res) => {
   try {
     const { pid } = req.query;
     const { skills, trainings, prevJobs } = req.body;
@@ -148,9 +179,17 @@ const addExperience = async (req, res) => {
       res.status(400);
       throw new Error("insufficient details");
     }
+    const findingPersonal = await Personal.findOne({ _id: pid });
+    if (!findingPersonal) {
+      res.status(400);
+      throw new Error("Worker not added");
+    }
+    if (findingPersonal.experienceId) {
+      res.status(400);
+      throw new Error("Experience Id already present");
+    }
     const newExperience = new Experience();
     for (const skill of skills) {
-      console.log("I am here...");
       const addSkill = await Skills.create(skill);
       await addSkill.save();
       newExperience.skillsId.push(addSkill);
@@ -167,7 +206,6 @@ const addExperience = async (req, res) => {
     }
     await newExperience.save();
 
-    const findingPersonal = await Personal.findOne({ _id: pid });
     findingPersonal.experienceId = newExperience._id;
     await findingPersonal.save();
     const wholeData = await findingPersonal.populate({
@@ -182,7 +220,7 @@ const addExperience = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
+});
 module.exports = {
   allDetails,
   addDetails,
