@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 const bcrypt = require("bcryptjs");
 const Schema = new mongoose.Schema({
   name: {
@@ -13,6 +14,7 @@ const Schema = new mongoose.Schema({
     type: Number,
     required: true,
     default: 0,
+    enum: [0, 1],
   },
   password: {
     type: String,

@@ -72,35 +72,10 @@ const deleteDepartment = async (req, res) => {
     throw new Error("Invalid Error");
   }
 };
-const addRole2Department = async (req, res) => {
-  try {
-    const { did } = req.query;
-    const { name, salary, duration } = req.body;
-    if (!did || !name || !salary || !duration) {
-      res.status(400);
-      throw new Error("Insufficient Details");
-    }
-    const creatingRole = await Role.create({
-      name,
-      salary,
-      duration,
-    });
-    const created = await creatingRole.save();
-    const findingDepartment = await Department.findOne({ _id: did });
-    findingDepartment.roleId = created._id;
-    await findingDepartment.save();
 
-    res.status(201).json(findingDepartment);
-  } catch (e) {
-    console.log(e);
-    res.status(400);
-    throw new Error("Invalid Error");
-  }
-};
 module.exports = {
   allDetails,
   addDetails,
   updateDetails,
   deleteDepartment,
-  addRole2Department,
 };

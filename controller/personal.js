@@ -1,10 +1,12 @@
+const asyncHandler = require("express-async-handler");
 const Personal = require("../models/personalModel");
+const Role = require("../models/roleModel");
 const Department = require("../models/departmentsModel");
 const Skills = require("..//models/skillsModel");
 const Training = require("../models/trainingModel");
 const PrevJobs = require("../models/prevJobs");
 const Experience = require("../models/experienceModel");
-const allDetails = async (req, res) => {
+const allDetails = asyncHandler(async (req, res) => {
   try {
     const all = await Personal.find({});
     res.status(200).json(all);
@@ -13,10 +15,10 @@ const allDetails = async (req, res) => {
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
+});
 const addDetails = async (req, res) => {
   try {
-    const { name, email, address, contact, dob, departmentId } = req.body;
+    const { name, email, address, contact, dob} = req.body;
     if (!name || !email || !address || !contact || !dob) {
       res.status(400);
       throw new Error("Insufficient Details");
@@ -26,8 +28,7 @@ const addDetails = async (req, res) => {
       email,
       address,
       contact,
-      dob,
-      departmentId,
+      dob
     });
     await addingDetaiils.save();
     res.status(201).json(addingDetaiils);
@@ -61,24 +62,49 @@ const updateDetails = async (req, res) => {
     throw new Error("Invalid Error");
   }
 };
-const add2Department = async (req, res) => {
+const add2Department = asyncHandler(async (req, res) => {
   try {
     const { eid, did } = req.query;
-    if (!eid || !did) {
+    const { name, salary, duration } = req.body;
+
+    if (!eid || !did || !name || !salary || !duration) {
       res.status(400);
       throw new Error("Insufficient Details");
     }
-    const findingDepartment = await Department.findOne({ _id: did });
+    const creatingRole = await Role.create({
+      name,
+      salary,
+      duration,
+      departmentId: did,
+    });
+    const created = await creatingRole.save();
+    if (!created) {
+      res.status(400);
+      throw new Error("Role Creation fail");
+    }
+    const findingPerson = await Personal.findOne({ _id: eid });
+    if (!findingPerson) {
+      res.status(400);
+      throw new Error("Person not found");
+    }
 
+    findingPerson.roleId = created._id;
+    await findingPerson.save();
+
+    const findingDepartment = await Department.findOne({ _id: did });
+    if (!findingDepartment) {
+      res.status(400);
+      throw new Error("Department not found");
+    }
     findingDepartment.workers.push(eid);
     await findingDepartment.save();
-    res.status(201).json(findingDepartment);
+    res.status(201).json({ findingDepartment, findingPerson });
   } catch (e) {
     console.log(e);
     res.status(400);
     throw new Error("Invalid Error");
   }
-};
+});
 const deleteDetails = async (req, res) => {
   try {
     const { pid } = req.query;

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema({
   name: {
     type: String,
@@ -11,6 +12,10 @@ const Schema = new mongoose.Schema({
   duration: {
     type: String,
     required: true,
+  },
+  departmentId: {
+    type: ObjectId,
+    ref: "Department",
   },
 });
 const Role = mongoose.model("Role", Schema);

@@ -21,14 +21,14 @@ const PersonalSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  departmentId: {
+  roleId: {
     type: ObjectId,
-    ref: "Department",
+    ref: "Role",
 
   },
   experienceId: {
     type: ObjectId,
-    ref: "Experience"
+    ref: "Experience",
   },
 });
 const Personal = mongoose.model("Personal", PersonalSchema);

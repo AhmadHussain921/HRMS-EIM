@@ -1,11 +1,19 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const generateToken = require("../config/generateToken");
-
+const allUsers = asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (e) {
+    res.status(400);
+    throw new Error("Failed to login the user");
+  }
+});
 const register = asyncHandler(async (req, res, next) => {
   const { name, email, type, password } = req.body;
 
-  if (!name || !email || !type || !password) {
+  if (!name || !email || !password) {
     res.status(400);
     throw new Error("Insufficient Details");
   }
@@ -59,4 +67,4 @@ const login = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { register, login };
+module.exports = { register, login, allUsers };

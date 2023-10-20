@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const {ObjectId}=mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 const Schema = new mongoose.Schema({
   name: {
     type: String,
@@ -17,16 +17,12 @@ const Schema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  roleId: {
-    type: ObjectId,
-    ref: "Role",
-   
-  },
-  workers:[{
-    type: ObjectId,
-    ref: "Personal",
-   
-  }]
+  workers: [
+    {
+      type: ObjectId,
+      ref: "Personal",
+    },
+  ],
 });
 const Department = mongoose.model("Department", Schema);
 module.exports = Department;

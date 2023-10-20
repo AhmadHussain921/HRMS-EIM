@@ -26,4 +26,20 @@ const protect = asyncHandler(async (req, res, next) => {
     throw new Error("Not authorized, no token ");
   }
 });
-module.exports = { protect };
+const protectAdmin = asyncHandler(async (req, res, next) => {
+  try {
+    if (req.user) {
+      const role = req.user.type;
+      if (role === 1) {
+        next();
+      } else {
+        res.status(401);
+        throw new Error("Not authorized, no token ");
+      }
+    }
+  } catch (e) {
+    res.status(401);
+    throw new Error("Not authorized, no token ");
+  }
+});
+module.exports = { protect, protectAdmin };
