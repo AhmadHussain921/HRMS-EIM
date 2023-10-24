@@ -19,6 +19,10 @@ const addDetails = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("Insufficient Details");
     }
+    const checkDepart = await Department.findOne({ name });
+    if (checkDepart) {
+      return res.status(201).json(checkDepart);
+    }
     const addingDetaiils = await Department.create({
       name,
       email,

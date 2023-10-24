@@ -23,6 +23,10 @@ const addDetails = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("Insufficient Details");
     }
+    const checkPerson = await Personal.findOne({ email: email });
+    if (checkPerson) {
+      return res.status(201).json(checkPerson);
+    }
     const addingDetaiils = await Personal.create({
       name,
       email,
@@ -185,8 +189,15 @@ const addExperience = asyncHandler(async (req, res) => {
       throw new Error("Worker not added");
     }
     if (findingPersonal.experienceId) {
-      res.status(400);
-      throw new Error("Experience Id already present");
+           // res.status(400);
+      // throw new Error("Experience Id already present");
+      const wholeData = await findingPersonal.populate({
+        path: "experienceId",
+        populate: {
+          path: "prevJobsId trainingId skillsId",
+        },
+      });
+      res.status(201).json(wholeData);
     }
     const newExperience = new Experience();
     for (const skill of skills) {
