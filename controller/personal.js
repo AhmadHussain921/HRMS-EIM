@@ -147,8 +147,7 @@ const add2Department = asyncHandler(async (req, res) => {
     }
 
     if (findingPerson?.roleId) {
-      res.status(400);
-      throw new Error("Role already assigned");
+      return res.status(201).json({ findingDepartment, findingPerson });
     }
     const creatingRole = await Role.create({
       name,
@@ -179,7 +178,7 @@ const addExperience = asyncHandler(async (req, res) => {
   try {
     const { pid } = req.query;
     const { skills, trainings, prevJobs } = req.body;
-    if (!skills || !trainings || !prevJobs) {
+    if (!pid || !skills || !trainings || !prevJobs) {
       res.status(400);
       throw new Error("insufficient details");
     }
@@ -197,7 +196,7 @@ const addExperience = asyncHandler(async (req, res) => {
           path: "prevJobsId trainingId skillsId",
         },
       });
-      res.status(201).json(wholeData);
+      return res.status(201).json(wholeData);    
     }
     const newExperience = new Experience();
     for (const skill of skills) {

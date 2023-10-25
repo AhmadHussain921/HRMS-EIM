@@ -3,14 +3,17 @@ const express = require("express");
 const request = require("supertest");
 const personalRoutes = require("../routes/personalRoute");
 const userRoutes = require("../routes/userRoutes");
+const departmentRoutes = require("../routes/departmentRoute");
 const { connectDB } = require("../config/db");
 const app = express();
 app.use(express.json());
 connectDB();
 app.use("/", userRoutes);
 app.use("/person", personalRoutes);
+app.use("/department", departmentRoutes);
 let token = "";
 let pid = "";
+let singleDepart = {};
 describe("Good Person Routes", function () {
   const AdminData = {
     name: "raza",
@@ -56,15 +59,18 @@ describe("Good Person Routes", function () {
       },
     ],
   };
+  const RoleData = {
+    name: "Frontend Developer",
+    salary: "20000",
+    duration: "2 yaer",
+  };
 
   test("get token", async () => {
     const loginUser = await request(app)
       .post("/login")
       .send({ email: AdminData.email, password: AdminData.password });
     expect(loginUser.statusCode).toBe(201);
-    console.log("Logged in user is ", loginUser.body);
     token = await loginUser.body.token;
-    pid = await loginUser.body._id;
   });
 
   test("add person by admin", async () => {
@@ -72,27 +78,41 @@ describe("Good Person Routes", function () {
       .post("/person/add")
       .send(PersonData)
       .set("Authorization", `Bearer ${token}`);
+    pid = await resWithToken.body._id;
     expect(resWithToken.statusCode).toBe(201);
   });
 
-  test("get all the by admin", async () => {
+  test("get all persons by admin", async () => {
     const resWithToken = await request(app)
       .get("/person")
       .set("Authorization", `Bearer ${token}`);
     expect(resWithToken.statusCode).toBe(200);
   });
-  // afterAll("adding experience in the person", async () => {
-  //   const resWithToken = await request(app)
-  //     .put(`/person/experience/add?pid=${pid}`)
-  //     .send(ExperienceData)
-  //     .set("Authorization", `Bearer ${token}`);
-  //   expect(resWithToken.statusCode).toBe(201);
-  // });
-  // afterAll("adding person to department", async () => {
-  //   const resWithToken = await request(app)
-  //     .post(`/person/department/add?pid=${pid}`)
-  //     .send(ExperienceData)
-  //     .set("Authorization", `Bearer ${token}`);
-  //   expect(resWithToken.statusCode).toBe(201);
-  // });
+  test("get all departments by admin", async () => {
+    const resWithToken = await request(app)
+      .get("/department")
+      .set("Authorization", `Bearer ${token}`);
+    singleDepart = resWithToken.body.length > 0 ? resWithToken.body[0] : {};
+    expect(resWithToken.statusCode).toBe(200);
+  });
+  afterAll(async () => {
+    const resWithToken = await request(app)
+      .put(`/person/experience/add?pid=${pid}`)
+      .send(ExperienceData)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(resWithToken.statusCode).toBe(201);
+  });
+  afterAll(async () => {
+    if (singleDepart?._id) {
+      const resWithToken = await request(app)
+        .put(`/person/department/add?eid=${pid}&did=${singleDepart._id}`)
+        .send(RoleData)
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(resWithToken.statusCode).toBe(201);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
 });

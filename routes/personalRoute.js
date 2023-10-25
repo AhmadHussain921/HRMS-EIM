@@ -17,8 +17,10 @@ const {
  * /person:
  *   get:
  *     summary: Get all personal details
+ *     tags:
+ *       - Person
  *     security:
- *       - BearerAuth: []  # Requires a bearer token
+ *       - bearerAuth: []  # Requires a bearer token
  *     responses:
  *       200:
  *         description: Successfully retrieved personal details
@@ -52,7 +54,7 @@ router.get("/", protect, allDetails);
  *   post:
  *     summary: Add personal details
  *     security:
- *       - BearerAuth: []  # Requires a bearer token
+ *       - bearerAuth: []  # Requires a bearer token
  *     requestBody:
  *       content:
  *         application/json:
@@ -106,7 +108,7 @@ router.post("/add", protect, protectAdmin, addDetails);
  *   put:
  *     summary: Update personal details
  *     security:
- *       - BearerAuth: []  # Requires a bearer token
+ *       - bearerAuth: []  # Requires a bearer token
  *     parameters:
  *       - in: query
  *         name: pid
@@ -156,7 +158,7 @@ router.put("/update", protect, protectAdmin, updateDetails);
  *   post:
  *     summary: Add a person to a department with a role
  *     security:
- *       - BearerAuth: []  # Requires a bearer token
+ *       - bearerAuth: []  # Requires a bearer token
  *     parameters:
  *       - in: query
  *         name: eid
@@ -210,7 +212,7 @@ router.put("/department/add", protect, protectAdmin, add2Department);
  *   put:
  *     summary: Add Experience
  *     security:
- *       - BearerAuth: []  # Requires a bearer token
+ *       - bearerAuth: []  # Requires a bearer token
  *     tags:
  *       - Experience
  *     parameters:
@@ -252,6 +254,10 @@ router.put("/experience/add", protect, protectAdmin, addExperience);
  * /person/experience/edit/skills/{sid}:
  *   put:
  *     summary: Edit a skill by ID
+ *     tags:
+ *       - Experience
+ *     security:
+ *       - bearerAuth: []  # Requires a bearer token
  *     parameters:
  *       - in: path
  *         name: sid
@@ -275,9 +281,13 @@ router.put("/experience/add", protect, protectAdmin, addExperience);
 router.put("/experience/edit/skills", protect, protectAdmin, editSkills);
 /**
  * @swagger
- * /person/experience/edit/prevJobs/{pjid}:
+ * /person/experience/edit/prevJobs:
  *   put:
  *     summary: Edit a previous job by ID
+ *     tags:
+ *       - Experience
+ *     security:
+ *       - bearerAuth: []  # Requires a bearer token
  *     parameters:
  *       - in: path
  *         name: pjid
@@ -301,9 +311,13 @@ router.put("/experience/edit/skills", protect, protectAdmin, editSkills);
 router.put("/experience/edit/prevjobs", protect, protectAdmin, editPrevJobs);
 /**
  * @swagger
- * /person/experience/edit/trainings/{tid}:
+ * /person/experience/edit/trainings:
  *   put:
  *     summary: Edit a training by ID
+ *     tags:
+ *       - Experience
+ *     security:
+ *       - bearerAuth: []  # Requires a bearer token
  *     parameters:
  *       - in: path
  *         name: tid
@@ -331,8 +345,10 @@ router.put("/experience/edit/trainings", protect, protectAdmin, editTrainings);
  * /person/delete:
  *   delete:
  *     summary: Delete personal details
+ *     tags:
+ *       - Person
  *     security:
- *       - BearerAuth: []  # Requires a bearer token
+ *       - bearerAuth: []  # Requires a bearer token
  *     parameters:
  *       - in: query
  *         name: pid
@@ -364,6 +380,6 @@ router.put("/experience/edit/trainings", protect, protectAdmin, editTrainings);
  *         description: Failed to delete personal details
  */
 
-router.put("/delete", protect, protectAdmin, deleteDetails);
+router.delete("/delete", protect, protectAdmin, deleteDetails);
 
 module.exports = router;

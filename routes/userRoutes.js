@@ -8,6 +8,8 @@ const { register, login, allUsers } = require("../controller/user");
  * /user:
  *   get:
  *     summary: Get all users
+ *     tags:
+ *       - User
  *     security:
  *       - bearerAuth: []  # Requires a bearer token
  *     responses:
@@ -20,9 +22,11 @@ router.get("/", protect, allUsers);
 
 /**
  * @swagger
- * /register:
+ * /user/register:
  *   post:
  *     summary: Register a new user
+ *     tags:
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -69,9 +73,11 @@ router.post("/register", register);
 
 /**
  * @swagger
- * /login:
+ * /user/login:
  *   post:
  *     summary: User login
+ *     tags:
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
