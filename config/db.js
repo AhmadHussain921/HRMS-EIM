@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect("mongodb://localhost:27017/temp", {
+    const conn = await mongoose.connect(process.env.DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -10,4 +10,8 @@ const connectDB = async () => {
     console.log("DB error", e);
   }
 };
-module.exports = { connectDB };
+const disconnectDB = async () => {
+  await mongoose.connection.close();
+};
+module.exports = { connectDB, disconnectDB };
+
